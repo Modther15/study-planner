@@ -12,6 +12,8 @@ const App = (function () {
   let summaries = [];
   let currentSection = "dashboard";
   let activeScheduleFilter = "all";
+  let expandedCourseIds = new Set();
+  const ACHIEVEMENTS_KEY = "study_planner_achievements";
 
   function toLocalDateString(date) {
     const year = date.getFullYear();
@@ -49,6 +51,20 @@ const App = (function () {
     // Setup all event listeners (event delegation)
     setupEventListeners();
 
+    // Synchronize progress if the same planner is open in another tab/window.
+    window.addEventListener("storage", (e) => {
+      if (
+        [
+          "study_planner_state",
+          "study_planner_schedule",
+          "study_planner_settings",
+          "study_planner_streak",
+        ].includes(e.key)
+      ) {
+        refreshAll();
+      }
+    });
+
     // Check achievements
     checkAchievements();
   }
@@ -72,28 +88,13 @@ const App = (function () {
     // Always reload fresh state from localStorage so dashboard shows live values
     loadFromStorage();
 
-    // Refresh the currently active section
-    switch (currentSection) {
-      case "dashboard":
-        // Fully re-render dashboard: controls + stats update together
-        renderDashboard();
-        break;
-      case "courses":
-        renderCourses();
-        break;
-      case "schedule":
-        renderSchedule();
-        break;
-      case "progress":
-        renderProgress();
-        break;
-      case "resources":
-        renderResources();
-        break;
-      case "summaries":
-        renderSummaries();
-        break;
-    }
+    renderDashboard();
+    renderCourses();
+    renderSchedule();
+    renderProgress();
+
+    if (currentSection === "resources") renderResources();
+    if (currentSection === "summaries") renderSummaries();
   }
 
   // ==========================================
@@ -246,31 +247,33 @@ const App = (function () {
     const container = document.getElementById("courses-list");
     if (!container) return;
 
-    // Re-read from localStorage to get latest state
+    if (expandedCourseIds.size === 0 && COURSES[0]) {
+      expandedCourseIds.add(COURSES[0].id);
+    }
+
     state = StorageManager.loadState();
-    const preCompleted = state.preCompletedLectures || [];
+    const completedIds = getAllCompletedIds();
 
     container.innerHTML = COURSES.map((course) => {
-      const courseCompletedCount = preCompleted.filter(
-        (l) => l.courseId === course.id,
+      const courseCompletedCount = course.lectures.filter((lecture) =>
+        completedIds.includes(lecture.id),
       ).length;
       const isFullyPreCompleted =
         course.lectures.length > 0 &&
         courseCompletedCount >= course.lectures.length;
-      return renderCourseCardHTML(course, preCompleted, isFullyPreCompleted);
+      return renderCourseCardHTML(course, completedIds, isFullyPreCompleted);
     }).join("");
 
-    // Expand the first course by default
-    setTimeout(() => {
-      const firstCard = container.querySelector(".course-card");
-      if (firstCard) firstCard.classList.add("expanded");
-    }, 50);
+    expandedCourseIds.forEach((courseId) => {
+      const card = container.querySelector(`.course-card[data-course-id="${courseId}"]`);
+      if (card) card.classList.add("expanded");
+    });
   }
 
-  function renderCourseCardHTML(course, preCompleted, isFullyPreCompleted) {
+  function renderCourseCardHTML(course, completedIds, isFullyPreCompleted) {
     const lecturesHtml = course.lectures
       .map((lec) => {
-        const isChecked = preCompleted.some((l) => l.id === lec.id);
+        const isChecked = completedIds.includes(lec.id);
         return `
                 <label class="lecture-check">
                     <input type="checkbox"
@@ -370,34 +373,24 @@ const App = (function () {
       `.course-card[data-course-id="${courseId}"]`,
     );
     if (card) {
-      card.classList.toggle("expanded");
+      const shouldExpand = !card.classList.contains("expanded");
+      card.classList.toggle("expanded", shouldExpand);
+      if (shouldExpand) {
+        expandedCourseIds.add(courseId);
+      } else {
+        expandedCourseIds.delete(courseId);
+      }
     }
   }
 
   function onLectureToggle(courseId, lectureId, checked) {
-    // Re-read state fresh from localStorage every time
-    let preCompleted = [
-      ...(StorageManager.loadState().preCompletedLectures || []),
-    ];
-
+    setTopicCompletion(lectureId, checked, courseId);
     if (checked) {
-      if (!preCompleted.some((l) => l.id === lectureId)) {
-        preCompleted.push({ id: lectureId, courseId });
-      }
-    } else {
-      preCompleted = preCompleted.filter((l) => l.id !== lectureId);
+      StorageManager.updateStreak();
+      streak = StorageManager.loadStreak();
     }
-
-    // Save using a fresh state object so no stale module-level values bleed in
-    const freshState = StorageManager.loadState();
-    freshState.preCompletedLectures = preCompleted;
-    StorageManager.saveState(freshState);
-
-    // Update module-level state too so other functions see the change
-    state.preCompletedLectures = preCompleted;
-
-    // Regenerate so dashboard values and the stored schedule reflect the new workload.
-    generateSchedule();
+    refreshAll();
+    checkAchievements();
   }
 
   /**
@@ -408,27 +401,14 @@ const App = (function () {
     const course = COURSES.find((c) => c.id === courseId);
     if (!course) return;
 
-    let preCompleted = [...(StorageManager.loadState().preCompletedLectures || [])];
     const lectureIds = course.lectures.map((l) => l.id);
-
+    setTopicCompletions(lectureIds, checked);
     if (checked) {
-      // Mark all as pre-completed
-      lectureIds.forEach((id) => {
-        if (!preCompleted.some((l) => l.id === id)) {
-          preCompleted.push({ id, courseId });
-        }
-      });
-    } else {
-      // Unmark all
-      preCompleted = preCompleted.filter((l) => l.id && !lectureIds.includes(l.id));
+      StorageManager.updateStreak();
+      streak = StorageManager.loadStreak();
     }
-
-    const freshState = StorageManager.loadState();
-    freshState.preCompletedLectures = preCompleted;
-    StorageManager.saveState(freshState);
-    state.preCompletedLectures = preCompleted;
-
-    generateSchedule();
+    refreshAll();
+    checkAchievements();
   }
 
   // ==========================================
@@ -583,6 +563,7 @@ const App = (function () {
                             ${isPractice ? '<span class="study-practice-badge">Practice</span>' : ""}
                             ${isRecall ? '<span class="study-recall-badge">Recall</span>' : ""}
                             ${isPostExam ? '<span class="study-postexam-badge">Post-Exam</span>' : ""}
+                            ${isDone ? '<span class="study-completed-badge">Completed</span>' : ""}
                             <span class="study-lecture">${st.lectureTitle}</span>
                             <span class="study-hours" style="color: ${tagColor};">${st.hours}h</span>
                         </span>
@@ -647,21 +628,15 @@ const App = (function () {
     // Re-read state
     const allCompletedIds = getAllCompletedIds();
 
-    // Calculate task progress from custom schedule
-    let totalTasks = 0;
-    let completedTasks = 0;
-    if (schedule) {
-      schedule.days.forEach((day) => {
-        day.studies.forEach((st) => {
-          if (st.type !== "exam") {
-            totalTasks++;
-            if (allCompletedIds.includes(st.lectureId)) {
-              completedTasks++;
-            }
-          }
-        });
-      });
-    }
+    // Calculate progress from the shared task universe:
+    // course lectures + generated non-exam schedule tasks.
+    const progressTaskIds = getProgressTaskIds();
+    const completedTaskIdSet = new Set(
+      allCompletedIds.filter((id) => progressTaskIds.includes(id)),
+    );
+    const totalTasks = progressTaskIds.length;
+    const completedTasks = completedTaskIdSet.size;
+    const remainingTasks = Math.max(0, totalTasks - completedTasks);
     const pct =
       totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
     const motivationalMsg = Components.getMotivationalMessage(pct);
@@ -702,7 +677,7 @@ const App = (function () {
                         <span class="progress-percentage">${pct}%</span>
                     </div>
                     <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 8px;">
-                        ${completedTasks} of ${totalTasks} tasks completed
+                        ${completedTasks} of ${totalTasks} tasks completed &bull; ${remainingTasks} remaining
                     </p>
                 </div>
             </div>
@@ -1000,11 +975,18 @@ const App = (function () {
         return;
       }
 
-      // Course card toggle
-      if (target.closest('[data-toggle="course"]')) {
-        const card = target.closest(".course-card");
-        if (card) {
-          card.classList.toggle("expanded");
+      // Lecture controls should only update completion, never expand/collapse.
+      if (target.closest(".lecture-check") || target.closest(".lecture-checkbox")) {
+        e.stopPropagation();
+        return;
+      }
+
+      // Course card toggle: only the dedicated header opens/closes details.
+      const courseHeader = target.closest(".course-card-header[data-toggle='course']");
+      if (courseHeader) {
+        const card = courseHeader.closest(".course-card");
+        if (card && card.dataset.courseId) {
+          toggleCourseDetails(card.dataset.courseId);
         }
         return;
       }
@@ -1073,6 +1055,7 @@ const App = (function () {
     // Change events (checkboxes)
     document.addEventListener("change", (e) => {
       if (e.target.classList.contains("lecture-checkbox")) {
+        e.stopPropagation();
         onLectureToggle(
           e.target.dataset.courseId,
           e.target.dataset.lectureId,
@@ -1186,33 +1169,23 @@ const App = (function () {
 
     // Refresh all sections so stats reflect the new schedule
     refreshAll();
+    checkAchievements();
   }
 
   // ==========================================
   // LECTURE COMPLETION (from schedule)
   // ==========================================
   function toggleLectureCompletion(lectureId, checked) {
-    // Read fresh from storage
-    let completedLectures = StorageManager.loadState().completedLectures || [];
+    setTopicCompletion(lectureId, checked);
 
     if (checked) {
-      if (!completedLectures.includes(lectureId)) {
-        completedLectures.push(lectureId);
-        StorageManager.updateStreak();
-      }
-    } else {
-      completedLectures = completedLectures.filter((id) => id !== lectureId);
+      StorageManager.updateStreak();
     }
-
-    state.completedLectures = completedLectures;
-    state.lastStudyDate = new Date().toISOString();
-    StorageManager.saveState(state);
 
     // Update streak in memory
     streak = StorageManager.loadStreak();
 
-    // Rebuild the remaining plan immediately after progress changes.
-    generateSchedule();
+    refreshAll();
 
     // Check achievements
     checkAchievements();
@@ -1232,13 +1205,21 @@ const App = (function () {
   }
 
   function checkAchievements() {
+    const freshState = StorageManager.loadState();
     const allCompletedIds = getAllCompletedIds();
-    const unlocked = JSON.parse(
-      localStorage.getItem("study_planner_achievements") || "[]",
-    );
+    const unlocked = loadUnlockedAchievements();
+    const unlockedSet = new Set(unlocked);
+    const activity = getAchievementActivity(freshState);
+    let unlockedChanged = false;
 
     const achievements = [
       { id: "first_lecture", condition: allCompletedIds.length >= 1 },
+      {
+        id: "early_bird",
+        condition:
+          activity.earlyBirdDates.length > 0 ||
+          isEarlyBirdDate(freshState.lastStudyDate),
+      },
       {
         id: "halfway",
         condition:
@@ -1248,6 +1229,18 @@ const App = (function () {
       { id: "streak_3", condition: streak.current >= 3 },
       { id: "streak_7", condition: streak.current >= 7 },
       {
+        id: "speed_demon",
+        condition: Object.values(activity.completionsByDate).some(
+          (ids) => new Set(ids || []).size >= 5,
+        ),
+      },
+      {
+        id: "night_owl",
+        condition:
+          activity.nightOwlDates.length > 0 ||
+          isNightOwlDate(freshState.lastStudyDate),
+      },
+      {
         id: "all_exams_prepped",
         condition: COURSES.every((c) =>
           c.lectures.every((l) => allCompletedIds.includes(l.id)),
@@ -1256,24 +1249,60 @@ const App = (function () {
     ];
 
     achievements.forEach(({ id, condition }) => {
-      if (condition && !unlocked.includes(id)) {
-        unlocked.push(id);
-        localStorage.setItem(
-          "study_planner_achievements",
-          JSON.stringify(unlocked),
-        );
+      if (condition && !unlockedSet.has(id)) {
+        unlockedSet.add(id);
+        unlockedChanged = true;
         const achievement = ACHIEVEMENTS.find((a) => a.id === id);
         if (achievement)
           showToast(`🏆 Achievement Unlocked: ${achievement.label}`);
       }
     });
+
+    saveUnlockedAchievements(Array.from(unlockedSet));
+    if (unlockedChanged && currentSection === "progress") {
+      renderProgress();
+    }
   }
 
   function checkAchievementUnlocked(id) {
-    const unlocked = JSON.parse(
-      localStorage.getItem("study_planner_achievements") || "[]",
+    return loadUnlockedAchievements().includes(id);
+  }
+
+  function loadUnlockedAchievements() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(ACHIEVEMENTS_KEY) || "[]");
+      return Array.isArray(parsed) ? Array.from(new Set(parsed)).filter(Boolean) : [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function saveUnlockedAchievements(ids) {
+    localStorage.setItem(
+      ACHIEVEMENTS_KEY,
+      JSON.stringify(Array.from(new Set(ids)).filter(Boolean)),
     );
-    return unlocked.includes(id);
+  }
+
+  function getAchievementActivity(sourceState) {
+    const activity = (sourceState && sourceState.achievementActivity) || {};
+    return {
+      completionsByDate: activity.completionsByDate || {},
+      earlyBirdDates: Array.from(new Set(activity.earlyBirdDates || [])),
+      nightOwlDates: Array.from(new Set(activity.nightOwlDates || [])),
+    };
+  }
+
+  function isEarlyBirdDate(dateLike) {
+    if (!dateLike) return false;
+    const date = new Date(dateLike);
+    return !Number.isNaN(date.getTime()) && date.getHours() < 9;
+  }
+
+  function isNightOwlDate(dateLike) {
+    if (!dateLike) return false;
+    const date = new Date(dateLike);
+    return !Number.isNaN(date.getTime()) && date.getHours() >= 22;
   }
 
   // ==========================================
@@ -1299,6 +1328,11 @@ const App = (function () {
       completedLectures: [],
       completedTasks: [],
       lastStudyDate: null,
+      achievementActivity: {
+        completionsByDate: {},
+        earlyBirdDates: [],
+        nightOwlDates: [],
+      },
     };
     localStorage.setItem("study_planner_state", JSON.stringify(defaultState));
     localStorage.setItem(
@@ -1346,13 +1380,105 @@ const App = (function () {
   // ==========================================
   // HELPERS
   // ==========================================
+  function getCourseIdForLectureId(lectureId) {
+    const course = COURSES.find((c) =>
+      (c.lectures || []).some((lecture) => lecture.id === lectureId),
+    );
+    return course ? course.id : null;
+  }
+
+  function setTopicCompletion(lectureId, checked, courseId = null) {
+    setTopicCompletions([lectureId], checked, courseId);
+  }
+
+  function setTopicCompletions(lectureIds, checked, courseId = null) {
+    const freshState = StorageManager.loadState();
+    const completed = new Set(freshState.completedLectures || []);
+    const newlyCompletedIds = [];
+
+    lectureIds.forEach((lectureId) => {
+      if (!lectureId) return;
+      if (checked) {
+        if (!completed.has(lectureId)) {
+          newlyCompletedIds.push(lectureId);
+        }
+        completed.add(lectureId);
+      } else {
+        completed.delete(lectureId);
+      }
+    });
+
+    freshState.completedLectures = Array.from(completed).filter(Boolean);
+    freshState.completedTasks = freshState.completedLectures;
+    freshState.preCompletedLectures = freshState.completedLectures.map((id) => ({
+      id,
+      courseId: courseId || getCourseIdForTaskId(id),
+    }));
+    freshState.lastStudyDate = checked ? new Date().toISOString() : freshState.lastStudyDate;
+    recordAchievementActivity(freshState, newlyCompletedIds);
+    StorageManager.saveState(freshState);
+    state = freshState;
+  }
+
+  function recordAchievementActivity(targetState, newlyCompletedIds) {
+    if (!newlyCompletedIds || newlyCompletedIds.length === 0) return;
+
+    const now = new Date();
+    const dateStr = toLocalDateString(now);
+    const activity = getAchievementActivity(targetState);
+    const completedToday = new Set(activity.completionsByDate[dateStr] || []);
+
+    newlyCompletedIds.forEach((id) => completedToday.add(id));
+    activity.completionsByDate[dateStr] = Array.from(completedToday);
+
+    if (now.getHours() < 9 && !activity.earlyBirdDates.includes(dateStr)) {
+      activity.earlyBirdDates.push(dateStr);
+    }
+
+    if (now.getHours() >= 22 && !activity.nightOwlDates.includes(dateStr)) {
+      activity.nightOwlDates.push(dateStr);
+    }
+
+    targetState.achievementActivity = activity;
+  }
+
+  function getProgressTaskIds() {
+    const ids = new Set();
+
+    COURSES.forEach((course) => {
+      (course.lectures || []).forEach((lecture) => ids.add(lecture.id));
+    });
+
+    if (schedule && Array.isArray(schedule.days)) {
+      schedule.days.forEach((day) => {
+        (day.studies || []).forEach((study) => {
+          if (study.type !== "exam" && study.lectureId) {
+            ids.add(study.lectureId);
+          }
+        });
+      });
+    }
+
+    return Array.from(ids);
+  }
+
+  function getCourseIdForTaskId(taskId) {
+    const directCourseId = getCourseIdForLectureId(taskId);
+    if (directCourseId) return directCourseId;
+
+    if (!schedule || !Array.isArray(schedule.days)) return null;
+    for (const day of schedule.days) {
+      const study = (day.studies || []).find((st) => st.lectureId === taskId);
+      if (study) return study.courseId || null;
+    }
+    return null;
+  }
+
   function getAllCompletedIds() {
     const currState = StorageManager.loadState();
-    const preCompleted = currState.preCompletedLectures || [];
     const completedLectures = currState.completedLectures || [];
 
     const ids = new Set();
-    preCompleted.forEach((l) => ids.add(l.id || l));
     completedLectures.forEach((id) => ids.add(id));
     return Array.from(ids);
   }
