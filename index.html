@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Study Planner | Semester 2 2026</title>
+    <meta
+      name="description"
+      content="Smart study planner for Final Exams - Spring 2026. Track progress, generate schedules, and manage your study sessions."
+    />
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>"
+    />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/main.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- ========== HEADER ========== -->
+      <header class="app-header">
+        <h1>📚 Study Planner</h1>
+        <p class="subtitle">
+          Final Exams • Spring Semester 2025/2026 • May 16 – June 7, 2026
+        </p>
+      </header>
+
+      <!-- ========== NAVIGATION ========== -->
+      <nav class="nav-tabs">
+        <button class="nav-tab active" data-section="dashboard">
+          <span>📊</span>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-tab" data-section="courses">
+          <span>📚</span>
+          <span>Courses</span>
+        </button>
+        <button class="nav-tab" data-section="schedule">
+          <span>📅</span>
+          <span>Schedule</span>
+        </button>
+        <button class="nav-tab" data-section="progress">
+          <span>✅</span>
+          <span>Progress</span>
+        </button>
+        <button class="nav-tab" data-section="resources">
+          <span>🔗</span>
+          <span>Resources</span>
+        </button>
+        <button class="nav-tab" data-section="summaries">
+          <span>📝</span>
+          <span>Summaries</span>
+        </button>
+      </nav>
+
+      <!-- ========== DASHBOARD SECTION ========== -->
+      <section id="dashboard-section" class="section-panel active">
+        <div id="dashboard-content">
+          <!-- Rendered by App.renderDashboard() -->
+        </div>
+      </section>
+
+      <!-- ========== COURSES SECTION ========== -->
+      <section id="courses-section" class="section-panel">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span>📚</span> Select Courses & Mark Pre-Completed Lectures
+            </h3>
+          </div>
+          <p
+            style="
+              color: var(--text-secondary);
+              font-size: 0.875rem;
+              margin-bottom: 20px;
+            "
+          >
+            Expand each course and check off any lectures you've already
+            completed. This helps the scheduler redistribute your remaining
+            study time efficiently.
+          </p>
+          <div class="courses-list" id="courses-list">
+            <!-- Rendered by App.renderCourses() -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== SCHEDULE SECTION ========== -->
+      <section id="schedule-section" class="section-panel">
+        <div id="schedule-content">
+          <!-- Rendered by App.renderSchedule() -->
+        </div>
+      </section>
+
+      <!-- ========== PROGRESS SECTION ========== -->
+      <section id="progress-section" class="section-panel">
+        <div id="progress-content">
+          <!-- Rendered by App.renderProgress() -->
+        </div>
+      </section>
+
+      <!-- ========== RESOURCES SECTION ========== -->
+      <section id="resources-section" class="section-panel">
+        <div class="card" style="margin-bottom: 20px">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span>🔗</span> All Course Resources & Links
+            </h3>
+          </div>
+          <p style="color: var(--text-secondary); font-size: 0.875rem">
+            Quick access to all your course materials organized by subject.
+            Click any link to open in Google Drive or external resources.
+          </p>
+        </div>
+        <div id="resources-content">
+          <!-- Rendered by App.renderResources() -->
+        </div>
+      </section>
+
+      <!-- ========== SUMMARIES SECTION ========== -->
+      <section id="summaries-section" class="section-panel">
+        <div id="summaries-content">
+          <!-- Rendered by App.renderSummaries() -->
+        </div>
+      </section>
+
+      <!-- ========== NOTICE SECTION ========== -->
+      <div class="notice-section">
+        <div class="notice-card">
+          <div class="notice-icon">⚠️</div>
+          <div class="notice-content">
+            <h4>Important Notice</h4>
+            <p>
+              Make sure that all lecture titles/topics are actually covered in
+              the video/resource you are studying from, because some playlists
+              or videos may be incomplete and may not explain the entire
+              curriculum. Always cross-reference with your official course
+              syllabus.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== RESET MODAL ========== -->
+    <div class="modal-overlay" id="resetModal">
+      <div class="modal">
+        <div class="modal-icon">🗑️</div>
+        <h3 class="modal-title">Reset All Data?</h3>
+        <p class="modal-message">
+          This will permanently delete your entire schedule, all progress,
+          pre-completed lectures, study streak, and saved summaries. This action
+          cannot be undone.
+        </p>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" id="modalCancelBtn">Cancel</button>
+          <button class="btn btn-danger" id="modalConfirmResetBtn">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path
+                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+              ></path>
+            </svg>
+            Delete Everything
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== SCRIPTS ========== -->
+    <script src="js/data.js?v=20260516-phase4-crypto"></script>
+    <script src="js/storage.js?v=20260516-phase4-crypto"></script>
+    <script src="js/scheduler.js?v=20260516-phase4-crypto"></script>
+    <script src="js/components.js?v=20260516-phase4-crypto"></script>
+    <script src="js/app.js?v=20260516-phase4-crypto"></script>
+  </body>
+</html>
