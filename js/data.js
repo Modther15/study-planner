@@ -384,12 +384,21 @@ const COURSES = [
     hoursNeeded: 25,
     examDate: "2026-06-01T09:00:00",
     examDuration: "9:00 AM - 11:00 AM",
-    totalLectures: 0,
+    totalLectures: 8,
     videoRef:
       "https://www.youtube.com/watch?v=OtN3iMTZJGE&list=PLMCoJU1AQ0p3Ora9nHgh3Rt-sxuVVMvQ7",
     driveMain:
       "https://drive.google.com/drive/folders/1Z9VceI0Q7Mi2TuueC09BYhZiUppQf5ah",
-    lectures: [],
+    lectures: [
+      { id: "stat-theoretical", title: "Theoretical", subtitle: "Topic 1", hours: 1.5 },
+      { id: "stat-describe-data-numerically", title: "Describe Data Numerically", subtitle: "Topic 2", hours: 1.5 },
+      { id: "stat-grouped-data", title: "Grouped Data", subtitle: "Topic 3", hours: 1.5 },
+      { id: "stat-normal-distribution", title: "The Normal Distribution", subtitle: "Topic 4", hours: 2 },
+      { id: "stat-sampling-distribution", title: "Sampling Distribution", subtitle: "Topic 5", hours: 2 },
+      { id: "stat-estimation-pt-1", title: "Estimation Pt-1", subtitle: "Topic 6", hours: 2 },
+      { id: "stat-estimation-pt-2", title: "Estimation Pt-2", subtitle: "Topic 7", hours: 2 },
+      { id: "stat-hypothesis-testing", title: "Hypothesis Testing", subtitle: "Topic 8", hours: 2.5 },
+    ],
     resources: [
       {
         label: "Main Folder",
@@ -413,14 +422,14 @@ const COURSES = [
       },
     ],
     topics: [
-      "Sampling Distributions",
-      "Confidence Intervals",
+      "Theoretical",
+      "Describe Data Numerically",
+      "Grouped Data",
+      "The Normal Distribution",
+      "Sampling Distribution",
+      "Estimation Pt-1",
+      "Estimation Pt-2",
       "Hypothesis Testing",
-      "T-tests",
-      "Z-tests",
-      "ANOVA",
-      "Chi-square",
-      "Regression",
     ],
   },
   {
@@ -498,11 +507,17 @@ const COURSES = [
     hoursNeeded: 15,
     examDate: "2026-05-25T12:00:00",
     examDuration: "12:00 PM - 2:00 PM",
-    totalLectures: 0,
+    totalLectures: 5,
     videoRef: null,
     driveMain:
       "https://drive.google.com/drive/folders/1AlCUI9tAPHF_KgQ9uHcOzrM58qPdo6vT",
-    lectures: [],
+    lectures: [
+      { id: "mkt-chapter-1", title: "Chapter 1", subtitle: "Chapter 1", hours: 1.5 },
+      { id: "mkt-chapter-5", title: "Chapter 5", subtitle: "Chapter 5", hours: 1.5 },
+      { id: "mkt-chapter-6", title: "Chapter 6", subtitle: "Chapter 6", hours: 1.5 },
+      { id: "mkt-chapter-7", title: "Chapter 7", subtitle: "Chapter 7", hours: 1.5 },
+      { id: "mkt-chapter-8", title: "Chapter 8", subtitle: "Chapter 8", hours: 1.5 },
+    ],
     resources: [
       {
         label: "Main Marketing Folder",
@@ -522,12 +537,11 @@ const COURSES = [
       },
     ],
     topics: [
-      "Marketing Fundamentals",
-      "Consumer Behavior",
-      "4Ps",
-      "STP",
-      "SWOT",
-      "MCQ",
+      "Chapter 1",
+      "Chapter 5",
+      "Chapter 6",
+      "Chapter 7",
+      "Chapter 8",
     ],
   },
 ];
@@ -799,7 +813,7 @@ const ACHIEVEMENTS = [
   {
     id: "early_bird",
     label: "Early Bird",
-    description: "Started studying before the default date",
+    description: "Completed a study task before 9 AM",
     icon: "🐦",
   },
   {
