@@ -28,6 +28,11 @@ const StorageManager = (function () {
             completedLectures: [],       // lectures marked completed during study
             completedTasks: [],          // individual tasks marked done
             lastStudyDate: null,
+            achievementActivity: {
+                completionsByDate: {},   // date string -> unique completed task ids
+                earlyBirdDates: [],      // dates where study was completed before 9 AM
+                nightOwlDates: [],       // dates where study was completed after 10 PM
+            },
         };
     }
 
@@ -53,7 +58,7 @@ const StorageManager = (function () {
             const raw = localStorage.getItem(KEYS.STATE);
             if (!raw) return getDefaultState();
             const parsed = JSON.parse(raw);
-            return { ...getDefaultState(), ...parsed };
+            return normalizeState({ ...getDefaultState(), ...parsed });
         } catch {
             return getDefaultState();
         }
@@ -61,10 +66,45 @@ const StorageManager = (function () {
 
     function saveState(state) {
         try {
-            localStorage.setItem(KEYS.STATE, JSON.stringify(state));
+            localStorage.setItem(KEYS.STATE, JSON.stringify(normalizeState(state)));
         } catch (e) {
             console.warn('Failed to save state:', e);
         }
+    }
+
+    function normalizeState(state) {
+        const normalized = { ...getDefaultState(), ...(state || {}) };
+        const completed = new Set(normalized.completedLectures || []);
+
+        // Older versions stored course checkboxes separately as
+        // preCompletedLectures. Keep migrating all completion-like fields into
+        // the single shared completedLectures array.
+        (normalized.preCompletedLectures || []).forEach(item => {
+            completed.add(item && item.id ? item.id : item);
+        });
+        (normalized.completedTasks || []).forEach(id => completed.add(id));
+
+        normalized.completedLectures = Array.from(completed).filter(Boolean);
+        normalized.completedTasks = normalized.completedLectures;
+        normalized.preCompletedLectures = normalized.completedLectures.map(id => ({
+            id,
+            courseId: (normalized.preCompletedLectures || []).find(item =>
+                item && (item.id === id || item === id)
+            )?.courseId || null,
+        }));
+        normalized.achievementActivity = {
+            completionsByDate: {
+                ...((normalized.achievementActivity || {}).completionsByDate || {}),
+            },
+            earlyBirdDates: Array.from(new Set(
+                ((normalized.achievementActivity || {}).earlyBirdDates || []).filter(Boolean)
+            )),
+            nightOwlDates: Array.from(new Set(
+                ((normalized.achievementActivity || {}).nightOwlDates || []).filter(Boolean)
+            )),
+        };
+
+        return normalized;
     }
 
     function loadSettings() {
