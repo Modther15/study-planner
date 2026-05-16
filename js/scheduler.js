@@ -86,6 +86,18 @@ const Scheduler = (function () {
     },
   ];
 
+  const COURSE_PLAN_START_DATES = {
+    database: "2026-05-16",
+    marketing: "2026-05-16",
+    statistics: "2026-05-26",
+    cryptography: "2026-05-26",
+    networks: "2026-05-26",
+    datastructure: "2026-06-05",
+    cryptography_final: "2026-06-08",
+  };
+
+  const EMERGENCY_FOCUS_DAYS = 3;
+
   // ==========================================
   // UTILITIES
   // ==========================================
@@ -204,11 +216,8 @@ const Scheduler = (function () {
   // ==========================================
 
   /**
-   * For subjects with real lecture lists (Database, Crypto, Networks, DS):
-   *   one study item per lecture.
-   * For subjects without lecture lists (Statistics, Marketing):
-   *   fall back to CUSTOM_PHASES generic items that aren't type==="exam".
-   * Pre-completed lectures are excluded from the schedule.
+   * Courses are the source of truth for schedulable work: one study item per
+   * course lecture/topic, using the same ID and title everywhere.
    */
   function buildStudyItems() {
     const items = [];
@@ -217,6 +226,8 @@ const Scheduler = (function () {
     let sequence = 0;
 
     COURSES.forEach((course) => {
+      const examDate = dateToStr(new Date(course.examDate));
+
       if (course.lectures && course.lectures.length > 0) {
         course.lectures.forEach((lec) => {
           items.push({
@@ -227,19 +238,66 @@ const Scheduler = (function () {
             lectureLink: lec.link || null,
             hours: lec.hours || 1.5,
             type: "learning",
-            examDate: dateToStr(new Date(course.examDate)),
+            examDate,
+            sequence: sequence++,
+          });
+        });
+      } else if (course.topics && course.topics.length > 0) {
+        course.topics.forEach((topic, idx) => {
+          items.push({
+            lectureId: `${course.id}-topic-${idx + 1}`,
+            courseId: course.id,
+            courseName: course.shortName,
+            lectureTitle: topic,
+            lectureLink: null,
+            hours: 1.5,
+            type: "learning",
+            examDate,
             sequence: sequence++,
           });
         });
       }
+
+      [
+        {
+          suffix: "previous-exams",
+          title: "Previous Exams / Practice Questions",
+          hours: 2,
+          type: "practice",
+        },
+        {
+          suffix: "active-recall",
+          title: "Active Recall + Weak Points",
+          hours: 1.5,
+          type: "recall",
+        },
+        {
+          suffix: "final-revision",
+          title: "Final Revision",
+          hours: 2,
+          type: "revision",
+        },
+      ].forEach((review) => {
+        items.push({
+          lectureId: `${course.id}-${review.suffix}`,
+          courseId: course.id,
+          courseName: course.shortName,
+          lectureTitle: review.title,
+          lectureLink: null,
+          hours: review.hours,
+          type: review.type,
+          examDate,
+          sequence: sequence++,
+          isAutoReview: true,
+        });
+      });
     });
 
-    // Generic items for courses with no lecture list
-    const noLectureCourses = new Set(["statistics", "marketing"]);
+    const realCourseIds = new Set(COURSES.map((course) => course.id));
     CUSTOM_PHASES.forEach((phase) => {
       phase.studyItems.forEach((item) => {
         if (item.type === "exam") return; // skip exam placeholders
-        if (noLectureCourses.has(item.courseId)) {
+        if (!realCourseIds.has(item.courseId)) {
           items.push({
             lectureId: item.lectureId,
             courseId: item.courseId,
@@ -380,40 +438,33 @@ const Scheduler = (function () {
   }
 
   function buildSourcePlanItems(remainingExams, completedIds) {
-    const remainingCourseIds = new Set(remainingExams.map((exam) => exam.courseId));
-    const examDateByCourse = {};
-    EXAM_CALENDAR.forEach((exam) => {
-      examDateByCourse[exam.courseId] = exam.date;
-    });
-
     let sequence = 0;
     const items = [];
+    const allItems = buildStudyItems();
 
-    CUSTOM_PHASES.forEach((phase) => {
-      phase.studyItems.forEach((item) => {
-        if (item.type === "exam") return;
-        if (!remainingCourseIds.has(item.courseId)) return;
-        if (completedIds.has(item.lectureId)) return;
+    remainingExams.forEach((exam) => {
+      const courseItems = allItems
+        .filter(
+          (item) =>
+            item.courseId === exam.courseId &&
+            !completedIds.has(item.lectureId),
+        )
+        .sort((a, b) => a.sequence - b.sequence);
+      const planStartDate = getCoursePlanStartDate(exam.courseId, exam.date);
 
-        let plannedDate = dateToStr(addDays(BASE_START_DATE, item.relativeDay));
-
-        // The markdown source places the final Networks night review on June 3
-        // after the Crypto exam, before the Networks exam.
-        if (
-          ["net-routing-post", "net-arq-post", "net-flow-control"].includes(
-            item.lectureId,
-          )
-        ) {
-          plannedDate = "2026-06-03";
-        }
-
-        const examDate = examDateByCourse[item.courseId];
-        if (examDate && plannedDate >= examDate) return;
+      courseItems.forEach((item, index) => {
+        const plannedDate = getDistributedPlanDate(
+          planStartDate,
+          exam.date,
+          index,
+          courseItems.length,
+        );
+        if (plannedDate >= exam.date) return;
 
         items.push({
           ...item,
           plannedDate,
-          examDate,
+          examDate: exam.date,
           sequence: sequence++,
           isSourcePlanItem: true,
         });
@@ -426,6 +477,22 @@ const Scheduler = (function () {
       }
       return a.sequence - b.sequence;
     });
+  }
+
+  function getCoursePlanStartDate(courseId, examDate) {
+    if (COURSE_PLAN_START_DATES[courseId]) return COURSE_PLAN_START_DATES[courseId];
+    const course = COURSES.find((c) => c.id === courseId);
+    const lectureCount = Math.max(1, (course && course.lectures ? course.lectures.length : 1));
+    return dateToStr(addDays(examDate, -lectureCount));
+  }
+
+  function getDistributedPlanDate(startDate, examDate, index, totalItems) {
+    const daysAvailable = Math.max(1, daysBetween(startDate, examDate));
+    const dayOffset =
+      totalItems <= 1
+        ? Math.max(0, daysAvailable - 1)
+        : Math.floor((index * (daysAvailable - 1)) / (totalItems - 1));
+    return dateToStr(addDays(startDate, dayOffset));
   }
 
   function fillCalendarFromSourcePlan(
@@ -452,7 +519,13 @@ const Scheduler = (function () {
       const examCourseIds = new Set((day.examsOnDay || []).map((exam) => exam.id));
 
       if (day.isExamDay) {
-        addSourcePlanExamDayStudies(day, queues, examByCourse, examCourseIds);
+        addSourcePlanExamDayStudies(
+          day,
+          queues,
+          examByCourse,
+          examCourseIds,
+          days,
+        );
         continue;
       }
 
@@ -528,22 +601,65 @@ const Scheduler = (function () {
     flushSourcePlanBacklog(days, queues, examByCourse, dailyGoalHours);
   }
 
-  function addSourcePlanExamDayStudies(day, queues, examByCourse, examCourseIds) {
-    const studySubjects = new Set();
-
-    Object.keys(queues).forEach((courseId) => {
-      if (examCourseIds.has(courseId)) return;
+  function addSourcePlanExamDayStudies(
+    day,
+    queues,
+    examByCourse,
+    examCourseIds,
+    days,
+  ) {
+    const date = parseDate(day.dateStr);
+    const focusCourseId = getFinalFocusCourse(day.dateStr, queues, examByCourse);
+    const eligibleSubjects = Object.keys(queues).filter((courseId) => {
+      if (examCourseIds.has(courseId)) return false;
       const exam = examByCourse[courseId];
-      if (!exam || parseDate(day.dateStr) >= exam.dateObj) return;
+      return (
+        exam &&
+        queues[courseId] &&
+        queues[courseId].length > 0 &&
+        date < exam.dateObj
+      );
+    });
 
+    const selectedSubjects = (
+      focusCourseId && eligibleSubjects.includes(focusCourseId)
+        ? [focusCourseId]
+        : eligibleSubjects.sort((a, b) => {
+            const pa = getPlanPressureIncludingExamDays(
+              a,
+              day.dateStr,
+              queues,
+              examByCourse,
+              days,
+            );
+            const pb = getPlanPressureIncludingExamDays(
+              b,
+              day.dateStr,
+              queues,
+              examByCourse,
+              days,
+            );
+            if (pb !== pa) return pb - pa;
+            return examByCourse[a].dateObj - examByCourse[b].dateObj;
+          }).slice(0, 1)
+    );
+
+    selectedSubjects.forEach((courseId) => {
+      const targetCount = getPostExamTargetCountForDay(
+        courseId,
+        day.dateStr,
+        queues,
+        examByCourse,
+        days,
+      );
+      let added = 0;
       while (
         queues[courseId] &&
-        queues[courseId][0] &&
-        queues[courseId][0].plannedDate <= day.dateStr &&
-        (studySubjects.size < 1 || studySubjects.has(courseId))
+        queues[courseId].length > 0 &&
+        added < targetCount
       ) {
         day.studies.push(createStudyFromItem(queues[courseId].shift()));
-        studySubjects.add(courseId);
+        added++;
       }
     });
 
@@ -560,7 +676,7 @@ const Scheduler = (function () {
         return (
           exam &&
           date < exam.dateObj &&
-          daysBetween(date, exam.dateObj) <= 2
+          daysBetween(date, exam.dateObj) <= EMERGENCY_FOCUS_DAYS
         );
       })
       .sort((a, b) => examByCourse[a].dateObj - examByCourse[b].dateObj)[0];
@@ -617,11 +733,11 @@ const Scheduler = (function () {
     days,
     effectiveStartStr,
   ) {
-    const dueCount = queues[courseId].filter((item) => item.plannedDate <= dateStr).length;
     const overdueCount = queues[courseId].filter((item) => item.plannedDate < dateStr).length;
     const hasLateStartBacklog = queues[courseId].some(
       (item) => item.plannedDate < effectiveStartStr,
     );
+    const dueCount = queues[courseId].filter((item) => item.plannedDate <= dateStr).length;
 
     if (!hasLateStartBacklog && overdueCount === 0) {
       return Math.max(1, dueCount);
@@ -632,7 +748,7 @@ const Scheduler = (function () {
       countStudyDaysForCourse(dateStr, examByCourse[courseId], days),
     );
     const compressedCount = Math.ceil(queues[courseId].length / eligibleDaysLeft);
-    return Math.max(1, dueCount, compressedCount);
+    return Math.max(1, compressedCount);
   }
 
   function hasOverduePlanItems(courseId, dateStr, queues) {
@@ -645,6 +761,22 @@ const Scheduler = (function () {
       countStudyDaysForCourse(dateStr, examByCourse[courseId], days),
     );
     return queues[courseId].length / eligibleDaysLeft;
+  }
+
+  function getPlanPressureIncludingExamDays(courseId, dateStr, queues, examByCourse, days) {
+    const eligibleDaysLeft = Math.max(
+      1,
+      countAssignableDaysForCourse(dateStr, examByCourse[courseId], days),
+    );
+    return queues[courseId].length / eligibleDaysLeft;
+  }
+
+  function getPostExamTargetCountForDay(courseId, dateStr, queues, examByCourse, days) {
+    const eligibleDaysLeft = Math.max(
+      1,
+      countAssignableDaysForCourse(dateStr, examByCourse[courseId], days),
+    );
+    return Math.max(1, Math.ceil(queues[courseId].length / eligibleDaysLeft));
   }
 
   function flushSourcePlanBacklog(days, queues, examByCourse) {
@@ -896,6 +1028,15 @@ const Scheduler = (function () {
         day.dateStr >= dateStr &&
         parseDate(day.dateStr) < exam.dateObj,
     ).length;
+  }
+
+  function countAssignableDaysForCourse(dateStr, exam, days) {
+    return days.filter((day) => {
+      if (day.dateStr < dateStr) return false;
+      if (parseDate(day.dateStr) >= exam.dateObj) return false;
+      const examCourseIds = new Set((day.examsOnDay || []).map((e) => e.id));
+      return !examCourseIds.has(exam.courseId);
+    }).length;
   }
 
   function remainingQueueHours(queue) {
@@ -1384,9 +1525,10 @@ const Scheduler = (function () {
   function calculateStats(scheduleDays, completedIds, context = {}) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const effectiveStart = context.effectiveStartStr
+    const contextStart = context.effectiveStartStr
       ? parseDate(context.effectiveStartStr)
       : today;
+    const effectiveStart = contextStart > today ? contextStart : today;
 
     // Merge completed ids from both sources
     const allCompleted = new Set(completedIds || []);
@@ -1450,19 +1592,16 @@ const Scheduler = (function () {
     const examDays = scheduleDays.filter(
       (d) => d.isExamDay && parseDate(d.dateStr) >= effectiveStart,
     );
-    const lastExam =
-      examDays.length > 0
-        ? [...examDays].sort((a, b) => parseDate(b.dateStr) - parseDate(a.dateStr))[0]
-        : null;
-
-    const endDate = lastExam ? parseDate(lastExam.dateStr) : effectiveStart;
-    const daysRemaining = Math.max(0, daysBetween(effectiveStart, endDate));
-
     const completionPct =
       totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
     const nextExamDay = examDays
       .sort((a, b) => parseDate(a.dateStr) - parseDate(b.dateStr))[0];
+
+    const nextExamDate = nextExamDay ? parseDate(nextExamDay.dateStr) : effectiveStart;
+    const daysRemaining = nextExamDay
+      ? Math.max(0, daysBetween(effectiveStart, nextExamDate))
+      : 0;
 
     const nextExam = nextExamDay
       ? {
