@@ -10,7 +10,6 @@
  *   Database:       May 23, 2026
  *   Marketing:      May 25, 2026
  *   Statistics:     June 1, 2026
- *   Cryptography:   June 3, 2026
  *   Networks:       June 4, 2026
  *   Data Struct.:   June 7, 2026
  *   Crypto Final:   June 13, 2026
@@ -54,21 +53,14 @@ const Scheduler = (function () {
       courseId: "statistics",
       courseName: "Statistics",
       phaseIndex: 2,
-      phaseLabel: "Statistics + Crypto + Networks",
-    },
-    {
-      date: "2026-06-03",
-      courseId: "cryptography",
-      courseName: "Crypto",
-      phaseIndex: 2,
-      phaseLabel: "Statistics + Crypto + Networks",
+      phaseLabel: "Statistics + Networks",
     },
     {
       date: "2026-06-04",
       courseId: "networks",
       courseName: "Networks",
       phaseIndex: 2,
-      phaseLabel: "Statistics + Crypto + Networks",
+      phaseLabel: "Statistics + Networks",
     },
     {
       date: "2026-06-07",
@@ -79,10 +71,10 @@ const Scheduler = (function () {
     },
     {
       date: "2026-06-13",
-      courseId: "cryptography_final",
+      courseId: "cryptography",
       courseName: "Cryptography",
       phaseIndex: 4,
-      phaseLabel: "Cryptography Final",
+      phaseLabel: "Cryptography",
     },
   ];
 
@@ -90,10 +82,9 @@ const Scheduler = (function () {
     database: "2026-05-16",
     marketing: "2026-05-16",
     statistics: "2026-05-26",
-    cryptography: "2026-05-26",
+    cryptography: "2026-06-08",
     networks: "2026-05-26",
     datastructure: "2026-06-05",
-    cryptography_final: "2026-06-08",
   };
 
   const EMERGENCY_FOCUS_DAYS = 3;
@@ -480,9 +471,13 @@ const Scheduler = (function () {
   }
 
   function getCoursePlanStartDate(courseId, examDate) {
-    if (COURSE_PLAN_START_DATES[courseId]) return COURSE_PLAN_START_DATES[courseId];
+    if (COURSE_PLAN_START_DATES[courseId])
+      return COURSE_PLAN_START_DATES[courseId];
     const course = COURSES.find((c) => c.id === courseId);
-    const lectureCount = Math.max(1, (course && course.lectures ? course.lectures.length : 1));
+    const lectureCount = Math.max(
+      1,
+      course && course.lectures ? course.lectures.length : 1,
+    );
     return dateToStr(addDays(examDate, -lectureCount));
   }
 
@@ -516,7 +511,9 @@ const Scheduler = (function () {
 
     for (const day of days) {
       const date = parseDate(day.dateStr);
-      const examCourseIds = new Set((day.examsOnDay || []).map((exam) => exam.id));
+      const examCourseIds = new Set(
+        (day.examsOnDay || []).map((exam) => exam.id),
+      );
 
       if (day.isExamDay) {
         addSourcePlanExamDayStudies(
@@ -529,7 +526,11 @@ const Scheduler = (function () {
         continue;
       }
 
-      const focusCourseId = getFinalFocusCourse(day.dateStr, queues, examByCourse);
+      const focusCourseId = getFinalFocusCourse(
+        day.dateStr,
+        queues,
+        examByCourse,
+      );
       const allowedSubjects = focusCourseId
         ? [focusCourseId]
         : Object.keys(queues).filter((courseId) => {
@@ -609,7 +610,11 @@ const Scheduler = (function () {
     days,
   ) {
     const date = parseDate(day.dateStr);
-    const focusCourseId = getFinalFocusCourse(day.dateStr, queues, examByCourse);
+    const focusCourseId = getFinalFocusCourse(
+      day.dateStr,
+      queues,
+      examByCourse,
+    );
     const eligibleSubjects = Object.keys(queues).filter((courseId) => {
       if (examCourseIds.has(courseId)) return false;
       const exam = examByCourse[courseId];
@@ -621,28 +626,29 @@ const Scheduler = (function () {
       );
     });
 
-    const selectedSubjects = (
+    const selectedSubjects =
       focusCourseId && eligibleSubjects.includes(focusCourseId)
         ? [focusCourseId]
-        : eligibleSubjects.sort((a, b) => {
-            const pa = getPlanPressureIncludingExamDays(
-              a,
-              day.dateStr,
-              queues,
-              examByCourse,
-              days,
-            );
-            const pb = getPlanPressureIncludingExamDays(
-              b,
-              day.dateStr,
-              queues,
-              examByCourse,
-              days,
-            );
-            if (pb !== pa) return pb - pa;
-            return examByCourse[a].dateObj - examByCourse[b].dateObj;
-          }).slice(0, 1)
-    );
+        : eligibleSubjects
+            .sort((a, b) => {
+              const pa = getPlanPressureIncludingExamDays(
+                a,
+                day.dateStr,
+                queues,
+                examByCourse,
+                days,
+              );
+              const pb = getPlanPressureIncludingExamDays(
+                b,
+                day.dateStr,
+                queues,
+                examByCourse,
+                days,
+              );
+              if (pb !== pa) return pb - pa;
+              return examByCourse[a].dateObj - examByCourse[b].dateObj;
+            })
+            .slice(0, 1);
 
     selectedSubjects.forEach((courseId) => {
       const targetCount = getPostExamTargetCountForDay(
@@ -733,11 +739,15 @@ const Scheduler = (function () {
     days,
     effectiveStartStr,
   ) {
-    const overdueCount = queues[courseId].filter((item) => item.plannedDate < dateStr).length;
+    const overdueCount = queues[courseId].filter(
+      (item) => item.plannedDate < dateStr,
+    ).length;
     const hasLateStartBacklog = queues[courseId].some(
       (item) => item.plannedDate < effectiveStartStr,
     );
-    const dueCount = queues[courseId].filter((item) => item.plannedDate <= dateStr).length;
+    const dueCount = queues[courseId].filter(
+      (item) => item.plannedDate <= dateStr,
+    ).length;
 
     if (!hasLateStartBacklog && overdueCount === 0) {
       return Math.max(1, dueCount);
@@ -747,7 +757,9 @@ const Scheduler = (function () {
       1,
       countStudyDaysForCourse(dateStr, examByCourse[courseId], days),
     );
-    const compressedCount = Math.ceil(queues[courseId].length / eligibleDaysLeft);
+    const compressedCount = Math.ceil(
+      queues[courseId].length / eligibleDaysLeft,
+    );
     return Math.max(1, compressedCount);
   }
 
@@ -763,7 +775,13 @@ const Scheduler = (function () {
     return queues[courseId].length / eligibleDaysLeft;
   }
 
-  function getPlanPressureIncludingExamDays(courseId, dateStr, queues, examByCourse, days) {
+  function getPlanPressureIncludingExamDays(
+    courseId,
+    dateStr,
+    queues,
+    examByCourse,
+    days,
+  ) {
     const eligibleDaysLeft = Math.max(
       1,
       countAssignableDaysForCourse(dateStr, examByCourse[courseId], days),
@@ -771,7 +789,13 @@ const Scheduler = (function () {
     return queues[courseId].length / eligibleDaysLeft;
   }
 
-  function getPostExamTargetCountForDay(courseId, dateStr, queues, examByCourse, days) {
+  function getPostExamTargetCountForDay(
+    courseId,
+    dateStr,
+    queues,
+    examByCourse,
+    days,
+  ) {
     const eligibleDaysLeft = Math.max(
       1,
       countAssignableDaysForCourse(dateStr, examByCourse[courseId], days),
@@ -783,26 +807,24 @@ const Scheduler = (function () {
     Object.keys(queues).forEach((courseId) => {
       while (queues[courseId] && queues[courseId].length > 0) {
         const exam = examByCourse[courseId];
-        const targetDay = [...days]
-          .reverse()
-          .find((day) => {
-            if (day.isExamDay) return false;
-            if (parseDate(day.dateStr) >= exam.dateObj) return false;
+        const targetDay = [...days].reverse().find((day) => {
+          if (day.isExamDay) return false;
+          if (parseDate(day.dateStr) >= exam.dateObj) return false;
 
-            const focusCourseId = getFinalFocusCourse(
-              day.dateStr,
-              queues,
-              examByCourse,
-            );
-            if (focusCourseId && focusCourseId !== courseId) return false;
+          const focusCourseId = getFinalFocusCourse(
+            day.dateStr,
+            queues,
+            examByCourse,
+          );
+          if (focusCourseId && focusCourseId !== courseId) return false;
 
-            const subjects = new Set(day.studies.map((study) => study.courseId));
-            return (
-              subjects.has(courseId) ||
-              subjects.size < 2 ||
-              day.studies.length === 0
-            );
-          });
+          const subjects = new Set(day.studies.map((study) => study.courseId));
+          return (
+            subjects.has(courseId) ||
+            subjects.size < 2 ||
+            day.studies.length === 0
+          );
+        });
 
         if (!targetDay) break;
 
@@ -828,7 +850,9 @@ const Scheduler = (function () {
       date = addDays(date, 1)
     ) {
       const dateStr = dateToStr(date);
-      const examsOnDate = remainingExams.filter((exam) => exam.date === dateStr);
+      const examsOnDate = remainingExams.filter(
+        (exam) => exam.date === dateStr,
+      );
       const firstExam = examsOnDate[0] || null;
       const phaseIndex = firstExam
         ? firstExam.phaseIndex
@@ -866,7 +890,9 @@ const Scheduler = (function () {
 
   function getPhaseForDate(dateStr, remainingExams) {
     const nextExam = remainingExams.find((exam) => exam.date >= dateStr);
-    return nextExam ? nextExam.phaseIndex : remainingExams[remainingExams.length - 1].phaseIndex;
+    return nextExam
+      ? nextExam.phaseIndex
+      : remainingExams[remainingExams.length - 1].phaseIndex;
   }
 
   function getPhaseLabel(phaseIndex) {
@@ -880,7 +906,9 @@ const Scheduler = (function () {
   }
 
   function buildSubjectQueues(allItems, remainingExams, completedIds) {
-    const remainingCourseIds = new Set(remainingExams.map((exam) => exam.courseId));
+    const remainingCourseIds = new Set(
+      remainingExams.map((exam) => exam.courseId),
+    );
     const typeOrder = { learning: 0, practice: 1, revision: 2, recall: 3 };
     const queues = {};
 
@@ -895,7 +923,8 @@ const Scheduler = (function () {
           !completedIds.has(item.lectureId),
       )
       .sort((a, b) => {
-        if (a.courseId !== b.courseId) return a.courseId.localeCompare(b.courseId);
+        if (a.courseId !== b.courseId)
+          return a.courseId.localeCompare(b.courseId);
         const typeDiff = (typeOrder[a.type] ?? 2) - (typeOrder[b.type] ?? 2);
         if (typeDiff !== 0 && a.type !== "learning" && b.type !== "learning") {
           return typeDiff;
@@ -961,12 +990,27 @@ const Scheduler = (function () {
       const studies = [];
       let totalHours = 0;
 
-      while (totalHours < targetHours && selected.some((id) => queues[id].length > 0)) {
+      while (
+        totalHours < targetHours &&
+        selected.some((id) => queues[id].length > 0)
+      ) {
         const nextCourse = selected
           .filter((id) => queues[id].length > 0)
           .sort((a, b) => {
-            const pa = getCoursePressure(a, day.dateStr, queues, examByCourse, days);
-            const pb = getCoursePressure(b, day.dateStr, queues, examByCourse, days);
+            const pa = getCoursePressure(
+              a,
+              day.dateStr,
+              queues,
+              examByCourse,
+              days,
+            );
+            const pb = getCoursePressure(
+              b,
+              day.dateStr,
+              queues,
+              examByCourse,
+              days,
+            );
             if (pb.pressure !== pa.pressure) return pb.pressure - pa.pressure;
             return examByCourse[a].dateObj - examByCourse[b].dateObj;
           })[0];
@@ -992,11 +1036,15 @@ const Scheduler = (function () {
 
   function getRankedCoursePressures(dateStr, queues, examByCourse, days) {
     return Object.keys(queues)
-      .map((courseId) => getCoursePressure(courseId, dateStr, queues, examByCourse, days))
+      .map((courseId) =>
+        getCoursePressure(courseId, dateStr, queues, examByCourse, days),
+      )
       .filter((entry) => entry.remainingHours > 0 && entry.daysLeft > 0)
       .sort((a, b) => {
         if (b.pressure !== a.pressure) return b.pressure - a.pressure;
-        return examByCourse[a.courseId].dateObj - examByCourse[b.courseId].dateObj;
+        return (
+          examByCourse[a.courseId].dateObj - examByCourse[b.courseId].dateObj
+        );
       });
   }
 
@@ -1017,7 +1065,8 @@ const Scheduler = (function () {
     const exam = examByCourse[courseId];
     const remainingHours = remainingQueueHours(queues[courseId]);
     const daysLeft = countStudyDaysForCourse(dateStr, exam, days);
-    const pressure = daysLeft > 0 ? remainingHours / daysLeft : Number.POSITIVE_INFINITY;
+    const pressure =
+      daysLeft > 0 ? remainingHours / daysLeft : Number.POSITIVE_INFINITY;
     return { courseId, remainingHours, daysLeft, pressure };
   }
 
@@ -1054,13 +1103,17 @@ const Scheduler = (function () {
       lectureLink: item.lectureLink,
       hours: item.hours,
       type: item.type,
-      isReview: ["revision", "spaced_review", "final_review"].includes(item.type),
+      isReview: ["revision", "spaced_review", "final_review"].includes(
+        item.type,
+      ),
       isRecall: item.type === "recall",
       isPractice: item.type === "practice",
       courseColor: course.colorRgb || "59,130,246",
       courseIcon: course.icon || "📚",
       isPostExam: false,
-      phaseIndex: EXAM_CALENDAR.find((exam) => exam.courseId === item.courseId)?.phaseIndex || 1,
+      phaseIndex:
+        EXAM_CALENDAR.find((exam) => exam.courseId === item.courseId)
+          ?.phaseIndex || 1,
     };
   }
 
@@ -1085,7 +1138,10 @@ const Scheduler = (function () {
 
         const item = queue.shift();
         targetDay.studies.push(createStudyFromItem(item));
-        targetDay.totalHours = targetDay.studies.reduce((s, st) => s + st.hours, 0);
+        targetDay.totalHours = targetDay.studies.reduce(
+          (s, st) => s + st.hours,
+          0,
+        );
         targetDay.strategy = "deadline_compression";
       }
     });
@@ -1564,10 +1620,11 @@ const Scheduler = (function () {
         .map((exam) => exam.courseId),
     );
 
-    const relevantItems = (context.allItems || buildStudyItems()).filter((item) =>
-      remainingCourseIds.size > 0
-        ? remainingCourseIds.has(item.courseId)
-        : scheduledStudyItems.some((st) => st.courseId === item.courseId),
+    const relevantItems = (context.allItems || buildStudyItems()).filter(
+      (item) =>
+        remainingCourseIds.size > 0
+          ? remainingCourseIds.has(item.courseId)
+          : scheduledStudyItems.some((st) => st.courseId === item.courseId),
     );
 
     const completedRelevant = relevantItems.filter((item) =>
@@ -1584,10 +1641,16 @@ const Scheduler = (function () {
     const totalItems = relevantItems.length;
     const totalHours = relevantItems.reduce((sum, item) => sum + item.hours, 0);
     const completedItems = completedRelevant.length;
-    const completedHours = completedRelevant.reduce((sum, item) => sum + item.hours, 0);
+    const completedHours = completedRelevant.reduce(
+      (sum, item) => sum + item.hours,
+      0,
+    );
 
     const remainingItems = remainingItemsList.length;
-    const remainingHours = remainingItemsList.reduce((sum, item) => sum + item.hours, 0);
+    const remainingHours = remainingItemsList.reduce(
+      (sum, item) => sum + item.hours,
+      0,
+    );
 
     const examDays = scheduleDays.filter(
       (d) => d.isExamDay && parseDate(d.dateStr) >= effectiveStart,
@@ -1595,10 +1658,13 @@ const Scheduler = (function () {
     const completionPct =
       totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
-    const nextExamDay = examDays
-      .sort((a, b) => parseDate(a.dateStr) - parseDate(b.dateStr))[0];
+    const nextExamDay = examDays.sort(
+      (a, b) => parseDate(a.dateStr) - parseDate(b.dateStr),
+    )[0];
 
-    const nextExamDate = nextExamDay ? parseDate(nextExamDay.dateStr) : effectiveStart;
+    const nextExamDate = nextExamDay
+      ? parseDate(nextExamDay.dateStr)
+      : effectiveStart;
     const daysRemaining = nextExamDay
       ? Math.max(0, daysBetween(effectiveStart, nextExamDate))
       : 0;
@@ -1638,17 +1704,26 @@ const Scheduler = (function () {
       // Always read fresh from localStorage so dashboard reflects latest state
       const completedIds = new Set();
       try {
-        const state = JSON.parse(localStorage.getItem("study_planner_state") || "{}");
-        (state.completedLectures || []).forEach(id => completedIds.add(mapCourseLectureToStudyId(id)));
-        (state.preCompletedLectures || []).forEach(l => completedIds.add(mapCourseLectureToStudyId(l.id || l)));
+        const state = JSON.parse(
+          localStorage.getItem("study_planner_state") || "{}",
+        );
+        (state.completedLectures || []).forEach((id) =>
+          completedIds.add(mapCourseLectureToStudyId(id)),
+        );
+        (state.preCompletedLectures || []).forEach((l) =>
+          completedIds.add(mapCourseLectureToStudyId(l.id || l)),
+        );
       } catch (_) {}
       const effectiveStartStr =
         (schedule.meta && schedule.meta.effectiveStart) ||
         (schedule.days[0] && schedule.days[0].dateStr) ||
         dateToStr(new Date());
-      const remainingExams = EXAM_CALENDAR
-        .map((exam) => ({ ...exam, dateObj: parseDate(exam.date) }))
-        .filter((exam) => parseDate(exam.date) >= parseDate(effectiveStartStr));
+      const remainingExams = EXAM_CALENDAR.map((exam) => ({
+        ...exam,
+        dateObj: parseDate(exam.date),
+      })).filter(
+        (exam) => parseDate(exam.date) >= parseDate(effectiveStartStr),
+      );
       return calculateStats(schedule.days, completedIds, {
         allItems: buildStudyItems(),
         remainingExams,
