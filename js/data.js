@@ -88,14 +88,14 @@ const COURSES = [
   },
   {
     id: "cryptography",
-    name: "Advanced Cryptography",
+    name: "Cryptography",
     shortName: "Crypto",
     icon: "🔐",
     color: "var(--accent-teal)",
     colorRgb: "20, 184, 166",
     difficulty: "hard",
     hoursNeeded: 30,
-    examDate: "2026-06-03T09:00:00",
+    examDate: "2026-06-13T09:00:00",
     examDuration: "9:00 AM - 11:00 AM",
     totalLectures: 8,
     videoRef:
@@ -390,14 +390,54 @@ const COURSES = [
     driveMain:
       "https://drive.google.com/drive/folders/1Z9VceI0Q7Mi2TuueC09BYhZiUppQf5ah",
     lectures: [
-      { id: "stat-theoretical", title: "Theoretical", subtitle: "Topic 1", hours: 1.5 },
-      { id: "stat-describe-data-numerically", title: "Describe Data Numerically", subtitle: "Topic 2", hours: 1.5 },
-      { id: "stat-grouped-data", title: "Grouped Data", subtitle: "Topic 3", hours: 1.5 },
-      { id: "stat-normal-distribution", title: "The Normal Distribution", subtitle: "Topic 4", hours: 2 },
-      { id: "stat-sampling-distribution", title: "Sampling Distribution", subtitle: "Topic 5", hours: 2 },
-      { id: "stat-estimation-pt-1", title: "Estimation Pt-1", subtitle: "Topic 6", hours: 2 },
-      { id: "stat-estimation-pt-2", title: "Estimation Pt-2", subtitle: "Topic 7", hours: 2 },
-      { id: "stat-hypothesis-testing", title: "Hypothesis Testing", subtitle: "Topic 8", hours: 2.5 },
+      {
+        id: "stat-theoretical",
+        title: "Theoretical",
+        subtitle: "Topic 1",
+        hours: 1.5,
+      },
+      {
+        id: "stat-describe-data-numerically",
+        title: "Describe Data Numerically",
+        subtitle: "Topic 2",
+        hours: 1.5,
+      },
+      {
+        id: "stat-grouped-data",
+        title: "Grouped Data",
+        subtitle: "Topic 3",
+        hours: 1.5,
+      },
+      {
+        id: "stat-normal-distribution",
+        title: "The Normal Distribution",
+        subtitle: "Topic 4",
+        hours: 2,
+      },
+      {
+        id: "stat-sampling-distribution",
+        title: "Sampling Distribution",
+        subtitle: "Topic 5",
+        hours: 2,
+      },
+      {
+        id: "stat-estimation-pt-1",
+        title: "Estimation Pt-1",
+        subtitle: "Topic 6",
+        hours: 2,
+      },
+      {
+        id: "stat-estimation-pt-2",
+        title: "Estimation Pt-2",
+        subtitle: "Topic 7",
+        hours: 2,
+      },
+      {
+        id: "stat-hypothesis-testing",
+        title: "Hypothesis Testing",
+        subtitle: "Topic 8",
+        hours: 2.5,
+      },
     ],
     resources: [
       {
@@ -512,11 +552,36 @@ const COURSES = [
     driveMain:
       "https://drive.google.com/drive/folders/1AlCUI9tAPHF_KgQ9uHcOzrM58qPdo6vT",
     lectures: [
-      { id: "mkt-chapter-1", title: "Chapter 1", subtitle: "Chapter 1", hours: 1.5 },
-      { id: "mkt-chapter-5", title: "Chapter 5", subtitle: "Chapter 5", hours: 1.5 },
-      { id: "mkt-chapter-6", title: "Chapter 6", subtitle: "Chapter 6", hours: 1.5 },
-      { id: "mkt-chapter-7", title: "Chapter 7", subtitle: "Chapter 7", hours: 1.5 },
-      { id: "mkt-chapter-8", title: "Chapter 8", subtitle: "Chapter 8", hours: 1.5 },
+      {
+        id: "mkt-chapter-1",
+        title: "Chapter 1",
+        subtitle: "Chapter 1",
+        hours: 1.5,
+      },
+      {
+        id: "mkt-chapter-5",
+        title: "Chapter 5",
+        subtitle: "Chapter 5",
+        hours: 1.5,
+      },
+      {
+        id: "mkt-chapter-6",
+        title: "Chapter 6",
+        subtitle: "Chapter 6",
+        hours: 1.5,
+      },
+      {
+        id: "mkt-chapter-7",
+        title: "Chapter 7",
+        subtitle: "Chapter 7",
+        hours: 1.5,
+      },
+      {
+        id: "mkt-chapter-8",
+        title: "Chapter 8",
+        subtitle: "Chapter 8",
+        hours: 1.5,
+      },
     ],
     resources: [
       {
@@ -536,13 +601,7 @@ const COURSES = [
         link: "https://drive.google.com/drive/folders/1v6oqBoIOt-WHGJRRltYJWFwjuIUM08i9",
       },
     ],
-    topics: [
-      "Chapter 1",
-      "Chapter 5",
-      "Chapter 6",
-      "Chapter 7",
-      "Chapter 8",
-    ],
+    topics: ["Chapter 1", "Chapter 5", "Chapter 6", "Chapter 7", "Chapter 8"],
   },
 ];
 
@@ -649,155 +708,737 @@ const MOTIVATIONAL_MESSAGES = {
 const BASE_START_DATE = "2026-05-16";
 
 const CUSTOM_PHASES = [
-    // =============================================
-    // PHASE 1: Database + Marketing (Exam: May 23, May 25)
-    // =============================================
-    {
-        label: "Database + Marketing Prep",
-        phaseIndex: 1,
-        examDate: "2026-05-23",
-        phaseStartDate: "2026-05-16",
-        studyItems: [
-            // May 16
-            { relativeDay: 0, courseId: "database", courseName: "Database", lectureTitle: "Core Concepts + Relational Model", lectureId: "db-core-concepts-relational-model", hours: 2, type: "learning" },
-            { relativeDay: 0, courseId: "database", courseName: "Database", lectureTitle: "SQL Basics", lectureId: "db-sql-basics", hours: 1.5, type: "learning" },
-            // May 17
-            { relativeDay: 1, courseId: "database", courseName: "Database", lectureTitle: "ERD + Normalization", lectureId: "db-erd-normalization", hours: 2, type: "learning" },
-            { relativeDay: 1, courseId: "marketing", courseName: "Marketing", lectureTitle: "Introduction + Concepts", lectureId: "mkt-intro-concepts", hours: 1.5, type: "learning" },
-            // May 18
-            { relativeDay: 2, courseId: "database", courseName: "Database", lectureTitle: "Transactions + Indexing", lectureId: "db-transactions-indexing", hours: 2, type: "learning" },
-            { relativeDay: 2, courseId: "marketing", courseName: "Marketing", lectureTitle: "Chapters Review", lectureId: "mkt-chapters-review", hours: 1.5, type: "revision" },
-            // May 19
-            { relativeDay: 3, courseId: "database", courseName: "Database", lectureTitle: "Solve Sheets / Questions", lectureId: "db-solve-sheets", hours: 2, type: "practice" },
-            { relativeDay: 3, courseId: "database", courseName: "Database", lectureTitle: "Weak Topics Review", lectureId: "db-weak-topics-review", hours: 2, type: "revision" },
-            // May 20
-            { relativeDay: 4, courseId: "database", courseName: "Database", lectureTitle: "Previous Exams", lectureId: "db-previous-exams", hours: 2.5, type: "practice" },
-            { relativeDay: 4, courseId: "marketing", courseName: "Marketing", lectureTitle: "Important Summaries", lectureId: "mkt-important-summaries", hours: 1.5, type: "revision" },
-            // May 21 — 2 days before DB exam, final DB focus
-            { relativeDay: 5, courseId: "database", courseName: "Database", lectureTitle: "Full Revision", lectureId: "db-full-revision", hours: 2, type: "revision" },
-            { relativeDay: 5, courseId: "database", courseName: "Database", lectureTitle: "Active Recall", lectureId: "db-active-recall", hours: 1.5, type: "recall" },
-            { relativeDay: 5, courseId: "database", courseName: "Database", lectureTitle: "Previous Exams 2", lectureId: "db-prev-exams-2", hours: 2, type: "practice" },
-            // May 22 — 1 day before DB exam, final DB focus
-            { relativeDay: 6, courseId: "database", courseName: "Database", lectureTitle: "Mock Exam", lectureId: "db-mock-exam", hours: 2.5, type: "practice" },
-            { relativeDay: 6, courseId: "database", courseName: "Database", lectureTitle: "Final Revision", lectureId: "db-final-revision", hours: 2, type: "revision" },
-            { relativeDay: 6, courseId: "database", courseName: "Database", lectureTitle: "Memorization Cleanup", lectureId: "db-memorization-cleanup", hours: 1, type: "recall" },
-            // May 23 — DB EXAM
-            { relativeDay: 7, courseId: "database", courseName: "Database", lectureTitle: "EXAM: Database Systems", lectureId: "db-exam", hours: 2, type: "exam" },
-            // May 23 post-exam
-            { relativeDay: 7, courseId: "marketing", courseName: "Marketing", lectureTitle: "Light Marketing Review", lectureId: "mkt-light-review", hours: 1, type: "revision", isPostExam: true },
-            // May 24 — 1 day before Marketing exam
-            { relativeDay: 8, courseId: "marketing", courseName: "Marketing", lectureTitle: "Solve Questions", lectureId: "mkt-solve-questions", hours: 2.5, type: "practice" },
-            { relativeDay: 8, courseId: "marketing", courseName: "Marketing", lectureTitle: "Final Revision", lectureId: "mkt-final-revision", hours: 2, type: "revision" },
-            // May 25 — Marketing EXAM
-            { relativeDay: 9, courseId: "marketing", courseName: "Marketing", lectureTitle: "EXAM: Marketing & Sales", lectureId: "mkt-exam", hours: 2, type: "exam" },
-        ],
-    },
-    // =============================================
-    // PHASE 2: Statistics + Crypto + Networks (Jun 1, Jun 3, Jun 4)
-    // =============================================
-    {
-        label: "Statistics + Crypto + Networks",
-        phaseIndex: 2,
-        examDate: "2026-06-01",
-        phaseStartDate: "2026-05-26",
-        studyItems: [
-            // May 26
-            { relativeDay: 10, courseId: "statistics", courseName: "Statistics", lectureTitle: "Chapters 1–2", lectureId: "stat-chapters-1-2", hours: 2, type: "learning" },
-            { relativeDay: 10, courseId: "networks", courseName: "Networks", lectureTitle: "OSI + Physical Layer", lectureId: "net-osi-physical", hours: 2, type: "learning" },
-            // May 27
-            { relativeDay: 11, courseId: "statistics", courseName: "Statistics", lectureTitle: "Probability Distributions", lectureId: "stat-probability-distributions", hours: 2.5, type: "learning" },
-            { relativeDay: 11, courseId: "networks", courseName: "Networks", lectureTitle: "Data Link Layer", lectureId: "net-data-link", hours: 2, type: "learning" },
-            // May 28
-            { relativeDay: 12, courseId: "statistics", courseName: "Statistics", lectureTitle: "Hypothesis Testing", lectureId: "stat-hypothesis-testing", hours: 2.5, type: "learning" },
-            { relativeDay: 12, courseId: "cryptography", courseName: "Crypto", lectureTitle: "Intro + Classical Encryption", lectureId: "cry-intro-classical", hours: 2, type: "learning" },
-            // May 29
-            { relativeDay: 13, courseId: "statistics", courseName: "Statistics", lectureTitle: "Solve Problems", lectureId: "stat-solve-problems", hours: 2.5, type: "practice" },
-            { relativeDay: 13, courseId: "networks", courseName: "Networks", lectureTitle: "ARQ + Routing", lectureId: "net-arq-routing", hours: 2, type: "learning" },
-            // May 30 — 2 days before Stats exam
-            { relativeDay: 14, courseId: "statistics", courseName: "Statistics", lectureTitle: "Previous Exams", lectureId: "stat-previous-exams", hours: 2.5, type: "practice" },
-            { relativeDay: 14, courseId: "statistics", courseName: "Statistics", lectureTitle: "Intensive Solving", lectureId: "stat-intensive-solving", hours: 2, type: "practice" },
-            // May 31 — 1 day before Stats exam, stats only
-            { relativeDay: 15, courseId: "statistics", courseName: "Statistics", lectureTitle: "Final Revision", lectureId: "stat-final-revision", hours: 2, type: "revision" },
-            { relativeDay: 15, courseId: "statistics", courseName: "Statistics", lectureTitle: "Weak Points", lectureId: "stat-weak-points", hours: 1.5, type: "revision" },
-            { relativeDay: 15, courseId: "statistics", courseName: "Statistics", lectureTitle: "Formula Review", lectureId: "stat-formula-review", hours: 1.5, type: "recall" },
-            // Jun 1 — Stats EXAM
-            { relativeDay: 16, courseId: "statistics", courseName: "Statistics", lectureTitle: "EXAM: Statistics-2", lectureId: "stat-exam", hours: 2, type: "exam" },
-            // Jun 1 post-exam
-            { relativeDay: 16, courseId: "cryptography", courseName: "Crypto", lectureTitle: "Crypto Light Revision", lectureId: "cry-light-revision", hours: 1, type: "revision", isPostExam: true },
-            // Jun 2 — 1 day before Crypto exam, crypto only
-            { relativeDay: 17, courseId: "cryptography", courseName: "Crypto", lectureTitle: "Previous Exams", lectureId: "cry-previous-exams", hours: 1.5, type: "practice" },
-            { relativeDay: 17, courseId: "cryptography", courseName: "Crypto", lectureTitle: "Algorithms Review", lectureId: "cry-algorithms-review", hours: 1.5, type: "revision" },
-            { relativeDay: 17, courseId: "cryptography", courseName: "Crypto", lectureTitle: "Practice Problems", lectureId: "cry-practice-problems", hours: 1.5, type: "practice" },
-            { relativeDay: 17, courseId: "cryptography", courseName: "Crypto", lectureTitle: "Final Revision", lectureId: "cry-final-revision", hours: 1.5, type: "revision" },
-            // Jun 3 — Crypto EXAM
-            { relativeDay: 18, courseId: "cryptography", courseName: "Crypto", lectureTitle: "EXAM: Advanced Cryptography", lectureId: "cry-exam", hours: 2, type: "exam" },
-            // Jun 3 post-exam
-            { relativeDay: 18, courseId: "networks", courseName: "Networks", lectureTitle: "Networks Revision", lectureId: "net-networks-revision", hours: 1, type: "revision", isPostExam: true },
-            // Jun 4 — Networks EXAM
-            { relativeDay: 19, courseId: "networks", courseName: "Networks", lectureTitle: "EXAM: Computer Networks-1", lectureId: "net-exam", hours: 2, type: "exam" },
-            // Jun 4 post-exam
-            { relativeDay: 19, courseId: "networks", courseName: "Networks", lectureTitle: "Routing", lectureId: "net-routing-post", hours: 1, type: "revision", isPostExam: true },
-            { relativeDay: 19, courseId: "networks", courseName: "Networks", lectureTitle: "ARQ", lectureId: "net-arq-post", hours: 1, type: "revision", isPostExam: true },
-            { relativeDay: 19, courseId: "networks", courseName: "Networks", lectureTitle: "Flow/Congestion Control", lectureId: "net-flow-control", hours: 1, type: "revision", isPostExam: true },
-        ],
-    },
-    // =============================================
-    // PHASE 3: Data Structures (Exam: June 7)
-    // =============================================
-    {
-        label: "Data Structures Final",
-        phaseIndex: 3,
-        examDate: "2026-06-07",
-        phaseStartDate: "2026-06-05",
-        studyItems: [
-            // Jun 5
-            { relativeDay: 20, courseId: "datastructure", courseName: "Data Structures", lectureTitle: "Arrays", lectureId: "ds-arrays", hours: 2, type: "learning" },
-            { relativeDay: 20, courseId: "datastructure", courseName: "Data Structures", lectureTitle: "Linked Lists", lectureId: "ds-linked-lists", hours: 2, type: "learning" },
-            { relativeDay: 20, courseId: "datastructure", courseName: "Data Structures", lectureTitle: "Stack/Queue", lectureId: "ds-stack-queue", hours: 2, type: "learning" },
-            // Jun 6
-            { relativeDay: 21, courseId: "datastructure", courseName: "Data Structures", lectureTitle: "Trees", lectureId: "ds-trees", hours: 2, type: "learning" },
-            { relativeDay: 21, courseId: "datastructure", courseName: "Data Structures", lectureTitle: "Graphs", lectureId: "ds-graphs", hours: 2, type: "learning" },
-            { relativeDay: 21, courseId: "datastructure", courseName: "Data Structures", lectureTitle: "Previous Exams", lectureId: "ds-previous-exams", hours: 2, type: "practice" },
-            { relativeDay: 21, courseId: "datastructure", courseName: "Data Structures", lectureTitle: "Final Revision", lectureId: "ds-final-revision", hours: 1.5, type: "revision" },
-            // Jun 7 — DS EXAM
-            { relativeDay: 22, courseId: "datastructure", courseName: "Data Structures", lectureTitle: "EXAM: Data Structures", lectureId: "ds-exam", hours: 2, type: "exam" },
-        ],
-    },
-    // =============================================
-    // PHASE 4: Cryptography Final (Exam: June 13)
-    // =============================================
-    {
-        label: "Cryptography Final Phase",
-        phaseIndex: 4,
-        examDate: "2026-06-13",
-        phaseStartDate: "2026-06-08",
-        studyItems: [
-            // Jun 8
-            { relativeDay: 23, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "Classical Encryption Revision", lectureId: "cry-final-classical-revision", hours: 2, type: "revision" },
-            { relativeDay: 23, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "Caesar / Vigenere", lectureId: "cry-final-caesar-vigenere", hours: 1.5, type: "revision" },
-            { relativeDay: 23, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "Practice Problems", lectureId: "cry-final-practice-problems-1", hours: 2, type: "practice" },
-            // Jun 9
-            { relativeDay: 24, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "DES / AES", lectureId: "cry-final-des-aes", hours: 2, type: "revision" },
-            { relativeDay: 24, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "Symmetric Encryption", lectureId: "cry-final-symmetric", hours: 1.5, type: "revision" },
-            { relativeDay: 24, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "Solve Sheets", lectureId: "cry-final-solve-sheets", hours: 2, type: "practice" },
-            // Jun 10
-            { relativeDay: 25, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "RSA", lectureId: "cry-final-rsa", hours: 2, type: "revision" },
-            { relativeDay: 25, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "Public Key Cryptography", lectureId: "cry-final-public-key", hours: 2, type: "revision" },
-            { relativeDay: 25, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "Previous Exams", lectureId: "cry-final-previous-exams-1", hours: 2, type: "practice" },
-            // Jun 11
-            { relativeDay: 26, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "Hashing", lectureId: "cry-final-hashing", hours: 1.5, type: "revision" },
-            { relativeDay: 26, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "Digital Signatures", lectureId: "cry-final-digital-signatures", hours: 1.5, type: "revision" },
-            { relativeDay: 26, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "Weak Topics Review", lectureId: "cry-final-weak-topics", hours: 2, type: "revision" },
-            // Jun 12
-            { relativeDay: 27, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "Active Recall", lectureId: "cry-final-active-recall", hours: 1.5, type: "recall" },
-            { relativeDay: 27, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "Mock Exam", lectureId: "cry-final-mock-exam", hours: 2.5, type: "practice" },
-            { relativeDay: 27, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "Previous Exams", lectureId: "cry-final-previous-exams-2", hours: 2, type: "practice" },
-            { relativeDay: 27, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "Final Revision", lectureId: "cry-final-final-revision", hours: 2, type: "revision" },
-            { relativeDay: 27, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "Important Notes / Summaries", lectureId: "cry-final-important-notes", hours: 1, type: "recall" },
-            // Jun 13
-            { relativeDay: 28, courseId: "cryptography_final", courseName: "Cryptography", lectureTitle: "EXAM: Cryptography", lectureId: "cry-final-exam", hours: 2, type: "exam" },
-        ],
-    },
+  // =============================================
+  // PHASE 1: Database + Marketing (Exam: May 23, May 25)
+  // =============================================
+  {
+    label: "Database + Marketing Prep",
+    phaseIndex: 1,
+    examDate: "2026-05-23",
+    phaseStartDate: "2026-05-16",
+    studyItems: [
+      // May 16
+      {
+        relativeDay: 0,
+        courseId: "database",
+        courseName: "Database",
+        lectureTitle: "Core Concepts + Relational Model",
+        lectureId: "db-core-concepts-relational-model",
+        hours: 2,
+        type: "learning",
+      },
+      {
+        relativeDay: 0,
+        courseId: "database",
+        courseName: "Database",
+        lectureTitle: "SQL Basics",
+        lectureId: "db-sql-basics",
+        hours: 1.5,
+        type: "learning",
+      },
+      // May 17
+      {
+        relativeDay: 1,
+        courseId: "database",
+        courseName: "Database",
+        lectureTitle: "ERD + Normalization",
+        lectureId: "db-erd-normalization",
+        hours: 2,
+        type: "learning",
+      },
+      {
+        relativeDay: 1,
+        courseId: "marketing",
+        courseName: "Marketing",
+        lectureTitle: "Introduction + Concepts",
+        lectureId: "mkt-intro-concepts",
+        hours: 1.5,
+        type: "learning",
+      },
+      // May 18
+      {
+        relativeDay: 2,
+        courseId: "database",
+        courseName: "Database",
+        lectureTitle: "Transactions + Indexing",
+        lectureId: "db-transactions-indexing",
+        hours: 2,
+        type: "learning",
+      },
+      {
+        relativeDay: 2,
+        courseId: "marketing",
+        courseName: "Marketing",
+        lectureTitle: "Chapters Review",
+        lectureId: "mkt-chapters-review",
+        hours: 1.5,
+        type: "revision",
+      },
+      // May 19
+      {
+        relativeDay: 3,
+        courseId: "database",
+        courseName: "Database",
+        lectureTitle: "Solve Sheets / Questions",
+        lectureId: "db-solve-sheets",
+        hours: 2,
+        type: "practice",
+      },
+      {
+        relativeDay: 3,
+        courseId: "database",
+        courseName: "Database",
+        lectureTitle: "Weak Topics Review",
+        lectureId: "db-weak-topics-review",
+        hours: 2,
+        type: "revision",
+      },
+      // May 20
+      {
+        relativeDay: 4,
+        courseId: "database",
+        courseName: "Database",
+        lectureTitle: "Previous Exams",
+        lectureId: "db-previous-exams",
+        hours: 2.5,
+        type: "practice",
+      },
+      {
+        relativeDay: 4,
+        courseId: "marketing",
+        courseName: "Marketing",
+        lectureTitle: "Important Summaries",
+        lectureId: "mkt-important-summaries",
+        hours: 1.5,
+        type: "revision",
+      },
+      // May 21 — 2 days before DB exam, final DB focus
+      {
+        relativeDay: 5,
+        courseId: "database",
+        courseName: "Database",
+        lectureTitle: "Full Revision",
+        lectureId: "db-full-revision",
+        hours: 2,
+        type: "revision",
+      },
+      {
+        relativeDay: 5,
+        courseId: "database",
+        courseName: "Database",
+        lectureTitle: "Active Recall",
+        lectureId: "db-active-recall",
+        hours: 1.5,
+        type: "recall",
+      },
+      {
+        relativeDay: 5,
+        courseId: "database",
+        courseName: "Database",
+        lectureTitle: "Previous Exams 2",
+        lectureId: "db-prev-exams-2",
+        hours: 2,
+        type: "practice",
+      },
+      // May 22 — 1 day before DB exam, final DB focus
+      {
+        relativeDay: 6,
+        courseId: "database",
+        courseName: "Database",
+        lectureTitle: "Mock Exam",
+        lectureId: "db-mock-exam",
+        hours: 2.5,
+        type: "practice",
+      },
+      {
+        relativeDay: 6,
+        courseId: "database",
+        courseName: "Database",
+        lectureTitle: "Final Revision",
+        lectureId: "db-final-revision",
+        hours: 2,
+        type: "revision",
+      },
+      {
+        relativeDay: 6,
+        courseId: "database",
+        courseName: "Database",
+        lectureTitle: "Memorization Cleanup",
+        lectureId: "db-memorization-cleanup",
+        hours: 1,
+        type: "recall",
+      },
+      // May 23 — DB EXAM
+      {
+        relativeDay: 7,
+        courseId: "database",
+        courseName: "Database",
+        lectureTitle: "EXAM: Database Systems",
+        lectureId: "db-exam",
+        hours: 2,
+        type: "exam",
+      },
+      // May 23 post-exam
+      {
+        relativeDay: 7,
+        courseId: "marketing",
+        courseName: "Marketing",
+        lectureTitle: "Light Marketing Review",
+        lectureId: "mkt-light-review",
+        hours: 1,
+        type: "revision",
+        isPostExam: true,
+      },
+      // May 24 — 1 day before Marketing exam
+      {
+        relativeDay: 8,
+        courseId: "marketing",
+        courseName: "Marketing",
+        lectureTitle: "Solve Questions",
+        lectureId: "mkt-solve-questions",
+        hours: 2.5,
+        type: "practice",
+      },
+      {
+        relativeDay: 8,
+        courseId: "marketing",
+        courseName: "Marketing",
+        lectureTitle: "Final Revision",
+        lectureId: "mkt-final-revision",
+        hours: 2,
+        type: "revision",
+      },
+      // May 25 — Marketing EXAM
+      {
+        relativeDay: 9,
+        courseId: "marketing",
+        courseName: "Marketing",
+        lectureTitle: "EXAM: Marketing & Sales",
+        lectureId: "mkt-exam",
+        hours: 2,
+        type: "exam",
+      },
+    ],
+  },
+  // =============================================
+  // PHASE 2: Statistics + Crypto + Networks (Jun 1, Jun 3, Jun 4)
+  // =============================================
+  {
+    label: "Statistics + Crypto + Networks",
+    phaseIndex: 2,
+    examDate: "2026-06-01",
+    phaseStartDate: "2026-05-26",
+    studyItems: [
+      // May 26
+      {
+        relativeDay: 10,
+        courseId: "statistics",
+        courseName: "Statistics",
+        lectureTitle: "Chapters 1–2",
+        lectureId: "stat-chapters-1-2",
+        hours: 2,
+        type: "learning",
+      },
+      {
+        relativeDay: 10,
+        courseId: "networks",
+        courseName: "Networks",
+        lectureTitle: "OSI + Physical Layer",
+        lectureId: "net-osi-physical",
+        hours: 2,
+        type: "learning",
+      },
+      // May 27
+      {
+        relativeDay: 11,
+        courseId: "statistics",
+        courseName: "Statistics",
+        lectureTitle: "Probability Distributions",
+        lectureId: "stat-probability-distributions",
+        hours: 2.5,
+        type: "learning",
+      },
+      {
+        relativeDay: 11,
+        courseId: "networks",
+        courseName: "Networks",
+        lectureTitle: "Data Link Layer",
+        lectureId: "net-data-link",
+        hours: 2,
+        type: "learning",
+      },
+      // May 28
+      {
+        relativeDay: 12,
+        courseId: "statistics",
+        courseName: "Statistics",
+        lectureTitle: "Hypothesis Testing",
+        lectureId: "stat-hypothesis-testing",
+        hours: 2.5,
+        type: "learning",
+      },
+      {
+        relativeDay: 12,
+        courseId: "cryptography",
+        courseName: "Crypto",
+        lectureTitle: "Intro + Classical Encryption",
+        lectureId: "cry-intro-classical",
+        hours: 2,
+        type: "learning",
+      },
+      // May 29
+      {
+        relativeDay: 13,
+        courseId: "statistics",
+        courseName: "Statistics",
+        lectureTitle: "Solve Problems",
+        lectureId: "stat-solve-problems",
+        hours: 2.5,
+        type: "practice",
+      },
+      {
+        relativeDay: 13,
+        courseId: "networks",
+        courseName: "Networks",
+        lectureTitle: "ARQ + Routing",
+        lectureId: "net-arq-routing",
+        hours: 2,
+        type: "learning",
+      },
+      // May 30 — 2 days before Stats exam
+      {
+        relativeDay: 14,
+        courseId: "statistics",
+        courseName: "Statistics",
+        lectureTitle: "Previous Exams",
+        lectureId: "stat-previous-exams",
+        hours: 2.5,
+        type: "practice",
+      },
+      {
+        relativeDay: 14,
+        courseId: "statistics",
+        courseName: "Statistics",
+        lectureTitle: "Intensive Solving",
+        lectureId: "stat-intensive-solving",
+        hours: 2,
+        type: "practice",
+      },
+      // May 31 — 1 day before Stats exam, stats only
+      {
+        relativeDay: 15,
+        courseId: "statistics",
+        courseName: "Statistics",
+        lectureTitle: "Final Revision",
+        lectureId: "stat-final-revision",
+        hours: 2,
+        type: "revision",
+      },
+      {
+        relativeDay: 15,
+        courseId: "statistics",
+        courseName: "Statistics",
+        lectureTitle: "Weak Points",
+        lectureId: "stat-weak-points",
+        hours: 1.5,
+        type: "revision",
+      },
+      {
+        relativeDay: 15,
+        courseId: "statistics",
+        courseName: "Statistics",
+        lectureTitle: "Formula Review",
+        lectureId: "stat-formula-review",
+        hours: 1.5,
+        type: "recall",
+      },
+      // Jun 1 — Stats EXAM
+      {
+        relativeDay: 16,
+        courseId: "statistics",
+        courseName: "Statistics",
+        lectureTitle: "EXAM: Statistics-2",
+        lectureId: "stat-exam",
+        hours: 2,
+        type: "exam",
+      },
+      // Jun 1 post-exam
+      {
+        relativeDay: 16,
+        courseId: "cryptography",
+        courseName: "Crypto",
+        lectureTitle: "Crypto Light Revision",
+        lectureId: "cry-light-revision",
+        hours: 1,
+        type: "revision",
+        isPostExam: true,
+      },
+      // Jun 2 — 1 day before Crypto exam, crypto only
+      {
+        relativeDay: 17,
+        courseId: "cryptography",
+        courseName: "Crypto",
+        lectureTitle: "Previous Exams",
+        lectureId: "cry-previous-exams",
+        hours: 1.5,
+        type: "practice",
+      },
+      {
+        relativeDay: 17,
+        courseId: "cryptography",
+        courseName: "Crypto",
+        lectureTitle: "Algorithms Review",
+        lectureId: "cry-algorithms-review",
+        hours: 1.5,
+        type: "revision",
+      },
+      {
+        relativeDay: 17,
+        courseId: "cryptography",
+        courseName: "Crypto",
+        lectureTitle: "Practice Problems",
+        lectureId: "cry-practice-problems",
+        hours: 1.5,
+        type: "practice",
+      },
+      {
+        relativeDay: 17,
+        courseId: "cryptography",
+        courseName: "Crypto",
+        lectureTitle: "Final Revision",
+        lectureId: "cry-final-revision",
+        hours: 1.5,
+        type: "revision",
+      },
+      // Jun 3 — Crypto EXAM
+      {
+        relativeDay: 18,
+        courseId: "cryptography",
+        courseName: "Crypto",
+        lectureTitle: "EXAM: Advanced Cryptography",
+        lectureId: "cry-exam",
+        hours: 2,
+        type: "exam",
+      },
+      // Jun 3 post-exam
+      {
+        relativeDay: 18,
+        courseId: "networks",
+        courseName: "Networks",
+        lectureTitle: "Networks Revision",
+        lectureId: "net-networks-revision",
+        hours: 1,
+        type: "revision",
+        isPostExam: true,
+      },
+      // Jun 4 — Networks EXAM
+      {
+        relativeDay: 19,
+        courseId: "networks",
+        courseName: "Networks",
+        lectureTitle: "EXAM: Computer Networks-1",
+        lectureId: "net-exam",
+        hours: 2,
+        type: "exam",
+      },
+      // Jun 4 post-exam
+      {
+        relativeDay: 19,
+        courseId: "networks",
+        courseName: "Networks",
+        lectureTitle: "Routing",
+        lectureId: "net-routing-post",
+        hours: 1,
+        type: "revision",
+        isPostExam: true,
+      },
+      {
+        relativeDay: 19,
+        courseId: "networks",
+        courseName: "Networks",
+        lectureTitle: "ARQ",
+        lectureId: "net-arq-post",
+        hours: 1,
+        type: "revision",
+        isPostExam: true,
+      },
+      {
+        relativeDay: 19,
+        courseId: "networks",
+        courseName: "Networks",
+        lectureTitle: "Flow/Congestion Control",
+        lectureId: "net-flow-control",
+        hours: 1,
+        type: "revision",
+        isPostExam: true,
+      },
+    ],
+  },
+  // =============================================
+  // PHASE 3: Data Structures (Exam: June 7)
+  // =============================================
+  {
+    label: "Data Structures Final",
+    phaseIndex: 3,
+    examDate: "2026-06-07",
+    phaseStartDate: "2026-06-05",
+    studyItems: [
+      // Jun 5
+      {
+        relativeDay: 20,
+        courseId: "datastructure",
+        courseName: "Data Structures",
+        lectureTitle: "Arrays",
+        lectureId: "ds-arrays",
+        hours: 2,
+        type: "learning",
+      },
+      {
+        relativeDay: 20,
+        courseId: "datastructure",
+        courseName: "Data Structures",
+        lectureTitle: "Linked Lists",
+        lectureId: "ds-linked-lists",
+        hours: 2,
+        type: "learning",
+      },
+      {
+        relativeDay: 20,
+        courseId: "datastructure",
+        courseName: "Data Structures",
+        lectureTitle: "Stack/Queue",
+        lectureId: "ds-stack-queue",
+        hours: 2,
+        type: "learning",
+      },
+      // Jun 6
+      {
+        relativeDay: 21,
+        courseId: "datastructure",
+        courseName: "Data Structures",
+        lectureTitle: "Trees",
+        lectureId: "ds-trees",
+        hours: 2,
+        type: "learning",
+      },
+      {
+        relativeDay: 21,
+        courseId: "datastructure",
+        courseName: "Data Structures",
+        lectureTitle: "Graphs",
+        lectureId: "ds-graphs",
+        hours: 2,
+        type: "learning",
+      },
+      {
+        relativeDay: 21,
+        courseId: "datastructure",
+        courseName: "Data Structures",
+        lectureTitle: "Previous Exams",
+        lectureId: "ds-previous-exams",
+        hours: 2,
+        type: "practice",
+      },
+      {
+        relativeDay: 21,
+        courseId: "datastructure",
+        courseName: "Data Structures",
+        lectureTitle: "Final Revision",
+        lectureId: "ds-final-revision",
+        hours: 1.5,
+        type: "revision",
+      },
+      // Jun 7 — DS EXAM
+      {
+        relativeDay: 22,
+        courseId: "datastructure",
+        courseName: "Data Structures",
+        lectureTitle: "EXAM: Data Structures",
+        lectureId: "ds-exam",
+        hours: 2,
+        type: "exam",
+      },
+    ],
+  },
+  // =============================================
+  // PHASE 4: Cryptography Final (Exam: June 13)
+  // =============================================
+  {
+    label: "Cryptography Final Phase",
+    phaseIndex: 4,
+    examDate: "2026-06-13",
+    phaseStartDate: "2026-06-08",
+    studyItems: [
+      // Jun 8
+      {
+        relativeDay: 23,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "Classical Encryption Revision",
+        lectureId: "cry-final-classical-revision",
+        hours: 2,
+        type: "revision",
+      },
+      {
+        relativeDay: 23,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "Caesar / Vigenere",
+        lectureId: "cry-final-caesar-vigenere",
+        hours: 1.5,
+        type: "revision",
+      },
+      {
+        relativeDay: 23,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "Practice Problems",
+        lectureId: "cry-final-practice-problems-1",
+        hours: 2,
+        type: "practice",
+      },
+      // Jun 9
+      {
+        relativeDay: 24,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "DES / AES",
+        lectureId: "cry-final-des-aes",
+        hours: 2,
+        type: "revision",
+      },
+      {
+        relativeDay: 24,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "Symmetric Encryption",
+        lectureId: "cry-final-symmetric",
+        hours: 1.5,
+        type: "revision",
+      },
+      {
+        relativeDay: 24,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "Solve Sheets",
+        lectureId: "cry-final-solve-sheets",
+        hours: 2,
+        type: "practice",
+      },
+      // Jun 10
+      {
+        relativeDay: 25,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "RSA",
+        lectureId: "cry-final-rsa",
+        hours: 2,
+        type: "revision",
+      },
+      {
+        relativeDay: 25,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "Public Key Cryptography",
+        lectureId: "cry-final-public-key",
+        hours: 2,
+        type: "revision",
+      },
+      {
+        relativeDay: 25,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "Previous Exams",
+        lectureId: "cry-final-previous-exams-1",
+        hours: 2,
+        type: "practice",
+      },
+      // Jun 11
+      {
+        relativeDay: 26,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "Hashing",
+        lectureId: "cry-final-hashing",
+        hours: 1.5,
+        type: "revision",
+      },
+      {
+        relativeDay: 26,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "Digital Signatures",
+        lectureId: "cry-final-digital-signatures",
+        hours: 1.5,
+        type: "revision",
+      },
+      {
+        relativeDay: 26,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "Weak Topics Review",
+        lectureId: "cry-final-weak-topics",
+        hours: 2,
+        type: "revision",
+      },
+      // Jun 12
+      {
+        relativeDay: 27,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "Active Recall",
+        lectureId: "cry-final-active-recall",
+        hours: 1.5,
+        type: "recall",
+      },
+      {
+        relativeDay: 27,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "Mock Exam",
+        lectureId: "cry-final-mock-exam",
+        hours: 2.5,
+        type: "practice",
+      },
+      {
+        relativeDay: 27,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "Previous Exams",
+        lectureId: "cry-final-previous-exams-2",
+        hours: 2,
+        type: "practice",
+      },
+      {
+        relativeDay: 27,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "Final Revision",
+        lectureId: "cry-final-final-revision",
+        hours: 2,
+        type: "revision",
+      },
+      {
+        relativeDay: 27,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "Important Notes / Summaries",
+        lectureId: "cry-final-important-notes",
+        hours: 1,
+        type: "recall",
+      },
+      // Jun 13
+      {
+        relativeDay: 28,
+        courseId: "cryptography_final",
+        courseName: "Cryptography",
+        lectureTitle: "EXAM: Cryptography",
+        lectureId: "cry-final-exam",
+        hours: 2,
+        type: "exam",
+      },
+    ],
+  },
 ];
 
 /**
